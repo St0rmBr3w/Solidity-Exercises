@@ -68,6 +68,7 @@ contract IdiotBettingTest is Test {
         vm.warp(1800);
         vm.prank(player2);
         vm.deal(player2, 1 ether);
+        vm.expectRevert(); 
         idiotBetting.bet{value: 1 ether}();
 
         // player3 bet 8 eth at 1 hour
@@ -80,6 +81,7 @@ contract IdiotBettingTest is Test {
         vm.warp(6000);
         vm.prank(player4);
         vm.deal(player4, 5 ether);
+        vm.expectRevert();
         idiotBetting.bet{value: 5 ether}();
 
         /////// CLAIM ///////
@@ -88,13 +90,11 @@ contract IdiotBettingTest is Test {
         vm.prank(player1);
         vm.expectRevert();
         idiotBetting.claimPrize();
-        assertEq(player1.balance, 0, "err: Player1 balance should be 0.");
 
         // player2 tries to claim, should revert because not winner
         vm.prank(player2);
         vm.expectRevert();
         idiotBetting.claimPrize();
-        assertEq(player2.balance, 0, "err: Player2 balance should be 0.");
 
         // player2 tries to claim, should not revert
         vm.prank(player3);

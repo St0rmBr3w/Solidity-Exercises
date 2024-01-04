@@ -12,12 +12,40 @@ contract IdiotBettingGame {
         2. `claimPrize` function can only be called by the winner after the betting 
            period has ended. It transfers the entire balance of the contract to the winner.
     */
+    address public currentLeader;
+    uint256 public highestBet;
+    uint256 public endOfBetting;
+
+    constructor() {
+        currentLeader = address(0);
+        highestBet = 0;
+        endOfBetting = block.timestamp;
+    }
 
     function bet() public payable {
         // your code here
+        require(msg.value > highestBet, "Bet must be higher than the current highest bet");
+        currentLeader = msg.sender;
+        highestBet = msg.value;
+        endOfBetting = block.timestamp + 1 hours;
     }
 
     function claimPrize() public {
         // your code here
+        require(msg.sender == currentLeader, "Only the current leader can claim the prize");
+        require(block.timestamp >= endOfBetting, "Betting period has not ended yet");
+        require(address(this).balance > 0, "No funds to claim");
+
+        uint256 prizeAmount = address(this).balance;
+        (bool sent, ) = currentLeader.call{value: prizeAmount}("");
+        require(sent, "Failed to send Ether");
+
+        // Resetting the game state
+        currentLeader = address(0);
+        highestBet = 0;
+        endOfBetting = block.timestamp;
     }
+
+    // Allow contract to receive Ether
+    receive() external payable {}
 }
