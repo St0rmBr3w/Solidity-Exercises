@@ -12,10 +12,11 @@ contract OriginVsSender {
      * the function "setNumber(uint256)" is an EOA using tx.origin and msg.sender keywords
      *
      */
-
     uint256 public number;
 
     function setNumber(uint256 num) external {
         /// your code here
+        require(tx.origin == msg.sender, "Caller must be an EOA");
+        number = num;
     }
 }
